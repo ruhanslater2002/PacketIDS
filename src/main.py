@@ -11,11 +11,19 @@ class Main:
 
 
 def parse_arguments():
-    """Parse command-line arguments."""
+    """Parse command-line arguments with validation."""
     parser = argparse.ArgumentParser(description="Start Intrusion Detection System with custom thresholds.")
-    parser.add_argument('--scan-threshold', type=int, default=20, help="Threshold for port scan detection (default: 20)")
-    parser.add_argument('--time-window', type=int, default=10, help="Time window in seconds for scan detection (default: 10)")
-    return parser.parse_args()
+    parser.add_argument('-st', '--scan-threshold', type=int, default=20,
+                        help="Threshold for port scan detection (default: 20)")
+    parser.add_argument('-tw', '--time-window', type=int, default=10,
+                        help="Time window in seconds for scan detection (default: 10)")
+    args = parser.parse_args()
+    # Validate that the arguments are positive integers
+    if args.scan_threshold <= 0:
+        parser.error("Scan threshold must be a positive integer.")
+    if args.time_window <= 0:
+        parser.error("Time window must be a positive integer.")
+    return args
 
 
 if __name__ == '__main__':
