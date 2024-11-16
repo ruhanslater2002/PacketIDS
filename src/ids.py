@@ -14,7 +14,7 @@ class IntrusionDetectionSystem:
         self.scan_threshold = scan_threshold  # Max packets from a single IP in the time window
         self.time_window = time_window  # Time window in seconds for detecting suspicious activity
         # Traffic logs to track packets per IP and port
-        self.traffic_log: List[dict] = []  # List to store logs for each source IP
+        self.traffic_logs: List[dict] = []  # List to store logs for each source IP
         # example:
         # {'ip': '192.168.1.50', 'timestamps': [timestamp1, timestamp2, ...], 'ports': {80, 443, 8080}},
         # {'ip': '192.168.1.30', 'timestamps': [timestamp3, timestamp4, ...], 'ports': {22, 25}},
@@ -29,45 +29,38 @@ class IntrusionDetectionSystem:
             flags: int = packet[scapy.TCP].flags
             current_time: float = time.time()
             # Find or create log for the source IP
-            log: dict = self.get_ip_log(source_ip)
+            log: dict = self.get_log(source_ip)
             # Add timestamp and port to log
-            self.update_ip_log(log, current_time, dst_port)
+            self.update_log(log, current_time, dst_port)
             # Perform scan detection checks
-            # self.detect_scan(log, source_ip)
             self.detect_port_scan(log, source_ip)
-            # self.detect_syn_scan(flags, source_ip, dest_port)
 
-    def get_ip_log(self, source_ip: str) -> dict:
+    def get_log(self, source_ip: str) -> dict:
         # Search for an existing log entry for the given IP
-        for log in self.traffic_log:
+        for log in self.traffic_logs:
             if log['ip'] == source_ip:
                 return log  # Return immediately if found
-        # If no log entry exists, create a new one and append to traffic_log
+        # If no log entry exists, create a new one
+        return self.create_log(source_ip)
+
+    def create_log(self, source_ip: str) -> dict:
+        """Create and append a new log entry for the given IP"""
         log: dict = {'ip': source_ip, 'timestamps': [], 'ports': set()}
-        self.traffic_log.append(log)
+        self.traffic_logs.append(log)
         return log
 
-    def update_ip_log(self, log: dict, current_time: float, dest_port: int) -> None:
+    def update_log(self, log: dict, current_time: float, dest_port: int) -> None:
+        """Update log with timestamp and destination port. Remove old entries outside the time window."""
         log['timestamps'].append(current_time)
         log['ports'].add(dest_port)
-
-        # Remove old entries outside the time window
-        log['timestamps'] = [
-            timestamp for timestamp in log['timestamps']
-            if current_time - timestamp <= self.time_window
-        ]
-
-    def detect_scan(self, log: dict, source_ip: str) -> None:
-        if len(log['timestamps']) > self.scan_threshold:
-            self.logger.warning(f"Potential scan detected from IP: {colored(source_ip, 'red')}.")
-            self.logger.info(f"Packets in the last {self.time_window} seconds: {colored(len(log['timestamps']), 'red')}.")
+        # Create a new list of valid timestamps by iterating through the existing ones
+        valid_timestamps: list = []
+        for timestamp in log['timestamps']:
+            if current_time - timestamp <= self.time_window:
+                valid_timestamps.append(timestamp)
+        # Replace the old list with the valid timestamps
+        log['timestamps'] = valid_timestamps
 
     def detect_port_scan(self, log: dict, source_ip: str) -> None:
-        if len(log['ports']) > 5:  # Arbitrary threshold for port scanning detection
+        if len(log['ports']) > 4:  # Arbitrary threshold for port scanning detection
             self.logger.warning(f"Port scan detected from IP: {colored(source_ip, 'red')} scanning ports: {log['ports']}.")
-
-    def detect_syn_scan(self, flags: int, source_ip: str, dst_port: int) -> None:
-        # Detect SYN flag in TCP packets, typically used in scans
-        if flags & 0x02:  # SYN flag
-            self.logger.warning(
-                f"SYN packet detected from {colored(source_ip, 'red')} to port {colored(dst_port, 'red')}.")
