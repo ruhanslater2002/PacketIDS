@@ -13,6 +13,7 @@ class PacketAnalyzer:
 
     def analyze_packet(self, packet: scapy.packet.Packet) -> None:
         if packet.haslayer(scapy.IP):
+
             if packet.haslayer(scapy.TCP):
                 self.handle_tcp_packet(packet)
             elif packet.haslayer(scapy.ICMP):
