@@ -15,6 +15,9 @@ class IntrusionDetectionSystem:
         self.time_window = time_window  # Time window in seconds for detecting suspicious activity
         # Traffic logs to track packets per IP and port
         self.traffic_log: List[dict] = []  # List to store logs for each source IP
+        # example:
+        # {'ip': '192.168.1.1', 'timestamps': [timestamp1, timestamp2, ...], 'ports': {80, 443, 8080}},
+        # {'ip': '192.168.1.2', 'timestamps': [timestamp3, timestamp4, ...], 'ports': {22, 25}},
         # Start packet sniffing
         self.logger.info("Starting Intrusion Detection System...")
         scapy.sniff(filter="tcp", prn=self.analyze_packet, store=False)
