@@ -1,7 +1,6 @@
 import scapy.all as scapy
 from consolelogger import ConsoleLogger
 from packetanalyzer import PacketAnalyzer
-from trafficlogmanager import TrafficLogManager
 
 
 class IntrusionDetectionSystem:
@@ -9,8 +8,7 @@ class IntrusionDetectionSystem:
         # Initialize Scapy and logger
         scapy.conf.verb = 0  # Suppress verbose Scapy output
         self.logger = ConsoleLogger("IDS")  # Logger instance for IDS
-        self.traffic_log_manager = TrafficLogManager()  # Traffic log manager
-        self.packet_analyzer = PacketAnalyzer(self.logger, self.traffic_log_manager, scan_threshold, time_window)
+        self.packet_analyzer = PacketAnalyzer(self.logger, scan_threshold, time_window)
 
     def scan(self):
         # Start packet sniffing
