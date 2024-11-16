@@ -4,7 +4,7 @@ from ids import IntrusionDetectionSystem
 
 class Main:
     def __init__(self, scan_threshold: int, time_window: int):
-        self.logo = """
+        self.logo = r"""
  ___________  _____ 
 |_   _|  _  \/  ___|
   | | | | | |\ `--. 
