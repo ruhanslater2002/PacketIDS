@@ -63,4 +63,4 @@ class IntrusionDetectionSystem:
 
     def detect_port_scan(self, log: dict, source_ip: str) -> None:
         if len(log['ports']) > 4:  # Arbitrary threshold for port scanning detection
-            self.logger.warning(f"Port scan detected from IP: {colored(source_ip, 'red')} scanning ports: {log['ports']}.")
+            self.logger.warning(f"Potential port scan detected from IP: {colored(source_ip, 'red')} scanning ports: {log['ports']}.")
