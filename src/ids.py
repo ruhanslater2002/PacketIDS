@@ -21,7 +21,7 @@ class IntrusionDetectionSystem:
 
     def scan(self):
         # Start packet sniffing
-        self.logger.info("Starting Intrusion Detection System...")
+        self.logger.info("Intrusion Detection System started...")
         scapy.sniff(filter="tcp", prn=self.analyze_packet, store=False)
 
     def analyze_packet(self, packet: scapy.packet.Packet) -> None:
