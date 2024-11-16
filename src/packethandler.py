@@ -1,10 +1,11 @@
 import scapy.all as scapy
 from termcolor import colored
+from ConsoleLogger import ConsoleLogger
 
 
 class PacketHandler:
-    def __init__(self, logger):
-        self.logger = logger
+    def __init__(self):
+        self.logger = ConsoleLogger("PACKET-HANDLER")
 
     def handle_tcp_packet(self, packet: scapy.packet.Packet) -> dict:
         """Handle incoming TCP packets."""
