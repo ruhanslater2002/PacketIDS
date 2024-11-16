@@ -36,8 +36,8 @@ class IntrusionDetectionSystem:
             self.traffic_log[source_ip].append(current_time)
             # Remove old entries outside the time window
             self.traffic_log[source_ip] = [
-                timestamp for timestamp in self.traffic_log[source_ip]
-                if current_time - timestamp <= self.TIME_WINDOW
+                time_stamp for time_stamp in self.traffic_log[source_ip]
+                if current_time - time_stamp <= self.TIME_WINDOW
             ]
             # Detect scan based on the threshold
             if len(self.traffic_log[source_ip]) > self.SCAN_THRESHOLD:
