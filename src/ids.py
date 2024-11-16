@@ -23,9 +23,6 @@ class IntrusionDetectionSystem:
         scapy.sniff(filter="tcp", prn=self.analyze_packet, store=False)
 
     def analyze_packet(self, packet: scapy.packet.Packet) -> None:
-        """
-        Analyze each packet to determine if it indicates potential scanning activity.
-        """
         if packet.haslayer(scapy.TCP) and packet.haslayer(scapy.IP):
             source_ip: str = packet[scapy.IP].src
             dest_port: int = packet[scapy.TCP].dport
@@ -36,29 +33,21 @@ class IntrusionDetectionSystem:
             # Add timestamp and port to log
             self.update_ip_log(ip_log, current_time, dest_port)
             # Perform scan detection checks
-            self.detect_scan(ip_log, source_ip)
+            # self.detect_scan(ip_log, source_ip)
             self.detect_port_scan(ip_log, source_ip)
-            self.detect_syn_scan(flags, source_ip, dest_port)
+            # self.detect_syn_scan(flags, source_ip, dest_port)
 
     def get_ip_log(self, source_ip: str) -> dict:
-        """
-        Retrieve the log entry for a given source IP, or create one if it doesn't exist.
-        """
-        ip_log = None
+        # Search for an existing log entry for the given IP
         for log in self.traffic_log:
             if log['ip'] == source_ip:
-                ip_log = log
-                break  # Stop once the IP log is found
-        # If no log entry exists, create a new log entry
-        if ip_log is None:
-            ip_log = {'ip': source_ip, 'timestamps': [], 'ports': set()}
-            self.traffic_log.append(ip_log)
+                return log  # Return immediately if found
+        # If no log entry exists, create a new one and append to traffic_log
+        ip_log: dict = {'ip': source_ip, 'timestamps': [], 'ports': set()}
+        self.traffic_log.append(ip_log)
         return ip_log
 
     def update_ip_log(self, ip_log: dict, current_time: float, dest_port: int) -> None:
-        """
-        Update the log for a given IP with the current timestamp and port.
-        """
         ip_log['timestamps'].append(current_time)
         ip_log['ports'].add(dest_port)
 
@@ -69,23 +58,14 @@ class IntrusionDetectionSystem:
         ]
 
     def detect_scan(self, ip_log: dict, source_ip: str) -> None:
-        """
-        Detect a potential scan based on the number of packets in the time window.
-        """
         if len(ip_log['timestamps']) > self.scan_threshold:
             self.logger.warning(f"Potential scan detected from IP: {colored(source_ip, 'red')}.")
             self.logger.info(f"Packets in the last {self.time_window} seconds: {colored(len(ip_log['timestamps']), 'red')}.")
 
     def detect_port_scan(self, ip_log: dict, source_ip: str) -> None:
-        """
-        Detect port scanning if the same IP is scanning multiple ports.
-        """
         if len(ip_log['ports']) > 5:  # Arbitrary threshold for port scanning detection
             self.logger.warning(f"Port scan detected from IP: {colored(source_ip, 'red')} scanning ports: {ip_log['ports']}.")
 
     def detect_syn_scan(self, flags: int, source_ip: str, dest_port: int) -> None:
-        """
-        Detect SYN packets, which are commonly used in scanning attempts.
-        """
         if flags & 0x02:  # SYN flag
             self.logger.warning(f"SYN packet detected from {colored(source_ip, 'red')} to port {colored(dest_port, 'red')}.")
