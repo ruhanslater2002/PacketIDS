@@ -5,35 +5,45 @@ from typing import List, DefaultDict
 from ConsoleLogger import ConsoleLogger
 
 
-class Ids:
+class IntrusionDetectionSystem:
     def __init__(self):
-        scapy.conf.verb = 0  # Verbose
-        self.logger: ConsoleLogger = ConsoleLogger("IDS")
-        # Threshold settings
-        self.SCAN_THRESHOLD: int = 20  # Number of packets per IP within the window
-        self.TIME_WINDOW: int = 10  # Time window in seconds for checking excessive traffic
-        # Track packets from each IP
+        # Initialize Scapy and logger
+        scapy.conf.verb = 0  # Suppress verbose Scapy output
+        self.logger: ConsoleLogger = ConsoleLogger("IDS")  # Logger instance for IDS
+        # Threshold settings for detecting scans
+        self.SCAN_THRESHOLD: int = 20  # Max packets from a single IP in the time window
+        self.TIME_WINDOW: int = 10  # Time window in seconds for detecting suspicious activity
+        # Traffic logs to track packets per IP
         self.traffic_log: DefaultDict[str, List[float]] = defaultdict(list)
         # Start packet sniffing
-        self.logger.info("Starting IDS...")
-        scapy.sniff(filter="tcp", prn=self.detect_scan, store=False)
+        self.logger.info("Starting Intrusion Detection System...")
+        scapy.sniff(filter="tcp", prn=self.analyze_packet, store=False)
 
-    def detect_scan(self, pkt: scapy.packet.Packet) -> None:
-        """Detect suspicious packets (port scans, etc.)."""
-        if pkt.haslayer(scapy.TCP) and pkt.haslayer(scapy.IP):
-            src_ip: str = pkt[scapy.IP].src
-            dst_port: int = pkt[scapy.TCP].dport
-            # Log packet information
+    def analyze_packet(self, packet: scapy.packet.Packet) -> None:
+        """
+        Analyze incoming packets to detect potential scans or suspicious activity.
+
+        Args:
+            packet (scapy.packet.Packet): The incoming packet to analyze.
+        """
+        if packet.haslayer(scapy.TCP) and packet.haslayer(scapy.IP):
+            # Extract source IP, destination port, and TCP flags
+            source_ip: str = packet[scapy.IP].src
+            dest_port: int = packet[scapy.TCP].dport
+            flags: int = packet[scapy.TCP].flags
+            # Log the packet's timestamp
             current_time: float = time.time()
-            self.traffic_log[src_ip].append(current_time)
-            # Remove outdated logs
-            self.traffic_log[src_ip] = [t for t in self.traffic_log[src_ip] if current_time - t <= self.TIME_WINDOW]
-            # Detect scan
-            if len(self.traffic_log[src_ip]) > self.SCAN_THRESHOLD:
-                self.logger.warning(f"[ALERT] Potential scan detected from IP: {src_ip}")
-                self.logger.info(f"Packets in the last {self.TIME_WINDOW}s: {len(self.traffic_log[src_ip])}")
-                # Optional: Block IP or trigger an alert.
-            # Check for SYN flag
-            flags: int = pkt[scapy.TCP].flags
+            self.traffic_log[source_ip].append(current_time)
+            # Remove old entries outside the time window
+            self.traffic_log[source_ip] = [
+                timestamp for timestamp in self.traffic_log[source_ip]
+                if current_time - timestamp <= self.TIME_WINDOW
+            ]
+            # Detect scan based on the threshold
+            if len(self.traffic_log[source_ip]) > self.SCAN_THRESHOLD:
+                self.logger.warning(f"Potential scan detected from IP: {source_ip}.")
+                self.logger.info(f"Packets in the last {self.TIME_WINDOW} seconds: {len(self.traffic_log[source_ip])}.")
+                # Optional: Take further action (e.g., block the IP)
+            # Detect SYN packets (common in scans)
             if flags & 0x02:  # SYN flag
-                self.logger.warning(f"SYN packet detected from {src_ip} to port {dst_port}")
+                self.logger.warning(f"SYN packet detected from {source_ip} to port {dest_port}.")
