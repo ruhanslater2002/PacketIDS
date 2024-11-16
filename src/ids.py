@@ -29,7 +29,7 @@ class IntrusionDetectionSystem:
             flags: int = packet[scapy.TCP].flags
             current_time: float = time.time()
             # Find or create log for the source IP
-            ip_log = self.get_ip_log(source_ip)
+            ip_log: dict = self.get_ip_log(source_ip)
             # Add timestamp and port to log
             self.update_ip_log(ip_log, current_time, dest_port)
             # Perform scan detection checks
