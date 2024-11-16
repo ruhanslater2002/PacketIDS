@@ -6,7 +6,7 @@ class Main:
         self.IntrusionDetectionSystem: IntrusionDetectionSystem = IntrusionDetectionSystem(20, 10)
 
     def start(self) -> None:
-        pass
+        self.IntrusionDetectionSystem.scan()
 
 
 if __name__ == '__main__':
