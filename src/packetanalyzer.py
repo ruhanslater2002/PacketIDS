@@ -2,7 +2,6 @@ from consolelogger import ConsoleLogger
 import scapy.all as scapy
 import time
 from termcolor import colored
-import socket
 
 
 class PacketAnalyzer:
