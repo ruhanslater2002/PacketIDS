@@ -12,10 +12,11 @@ class PacketAnalyzer:
         self.traffic_logs = []  # Now within PacketAnalyzer class
 
     def analyze_packet(self, packet: scapy.packet.Packet) -> None:
-        if packet.haslayer(scapy.TCP) and packet.haslayer(scapy.IP):
-            self.handle_tcp_packet(packet)
-        elif packet.haslayer(scapy.ICMP) and packet.haslayer(scapy.IP):
-            self.handle_icmp_packet(packet)
+        if packet.haslayer(scapy.IP):
+            if packet.haslayer(scapy.TCP):
+                self.handle_tcp_packet(packet)
+            elif packet.haslayer(scapy.ICMP):
+                self.handle_icmp_packet(packet)
 
     def handle_tcp_packet(self, packet: scapy.packet.Packet) -> None:
         source_ip: str = packet[scapy.IP].src
