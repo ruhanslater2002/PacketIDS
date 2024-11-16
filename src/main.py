@@ -4,26 +4,21 @@ from ids import IntrusionDetectionSystem
 
 class Main:
     def __init__(self, scan_threshold: int, time_window: int):
-        self.logo = """
- .----------------.  .----------------.  .----------------. 
-| .--------------. || .--------------. || .--------------. |
-| |     _____    | || |  ________    | || |    _______   | |
-| |    |_   _|   | || | |_   ___ `.  | || |   /  ___  |  | |
-| |      | |     | || |   | |   `. | | || |  |  (__ |_|  | |
-| |      | |     | || |   | |    | | | || |   '.___`-.   | |
-| |     _| |_    | || |  _| |___.' | | || |  |`|____) |  | |
-| |    |_____|   | || | |________.'  | || |  |_______.'  | |
-| |              | || |              | || |              | |
-| '--------------' || '--------------' || '--------------' |
- '----------------'  '----------------'  '----------------' 
-
-        """
-        # Print logo without extra indentation
-        print(self.logo)
         self.IntrusionDetectionSystem: IntrusionDetectionSystem = IntrusionDetectionSystem(scan_threshold, time_window)
 
     def start(self) -> None:
         self.IntrusionDetectionSystem.scan()
+
+
+def logo():
+    return r"""
+            .___________    _________
+            |   \______ \  /   _____/
+            |   ||    |  \ \_____  \ 
+            |   ||    `   \/        \
+            |___/_______  /_______  /
+                        \/        \/ 
+                    """
 
 
 def parse_arguments():
@@ -33,7 +28,7 @@ def parse_arguments():
                         help="Threshold for port scan detection (default: 20)")
     parser.add_argument('-tw', '--time-window', type=int, default=10,
                         help="Time window in seconds for scan detection (default: 10)")
-    args = parser.parse_args()
+    args: argparse.Namespace = parser.parse_args()
     # Validate that the arguments are positive integers
     if args.scan_threshold <= 0:
         parser.error("Scan threshold must be a positive integer.")
@@ -43,6 +38,7 @@ def parse_arguments():
 
 
 if __name__ == '__main__':
+    print(logo())  # Print the logo by calling the logo function
     args = parse_arguments()
     # Initialize the Main class with the parsed arguments
     Main(args.scan_threshold, args.time_window).start()
