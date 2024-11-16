@@ -4,6 +4,17 @@ from ids import IntrusionDetectionSystem
 
 class Main:
     def __init__(self, scan_threshold: int, time_window: int):
+        self.logo = """
+ ___________  _____ 
+|_   _|  _  \/  ___|
+  | | | | | |\ `--. 
+  | | | | | | `--. \
+ _| |_| |/ / /\__/ /
+ \___/|___/  \____/ 
+
+        """
+        # Print logo without extra indentation
+        print(self.logo)
         self.IntrusionDetectionSystem: IntrusionDetectionSystem = IntrusionDetectionSystem(scan_threshold, time_window)
 
     def start(self) -> None:
