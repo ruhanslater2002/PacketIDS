@@ -6,13 +6,13 @@ from ConsoleLogger import ConsoleLogger
 
 
 class IntrusionDetectionSystem:
-    def __init__(self):
+    def __init__(self, scan_threshold: int, time_window: int):
         # Initialize Scapy and logger
         scapy.conf.verb = 0  # Suppress verbose Scapy output
         self.logger: ConsoleLogger = ConsoleLogger("IDS")  # Logger instance for IDS
         # Threshold settings for detecting scans
-        self.SCAN_THRESHOLD: int = 20  # Max packets from a single IP in the time window
-        self.TIME_WINDOW: int = 10  # Time window in seconds for detecting suspicious activity
+        self.SCAN_THRESHOLD = scan_threshold  # Max packets from a single IP in the time window
+        self.TIME_WINDOW = time_window  # Time window in seconds for detecting suspicious activity
         # Traffic logs to track packets per IP
         self.traffic_log: DefaultDict[str, List[float]] = defaultdict(list)
         # Start packet sniffing

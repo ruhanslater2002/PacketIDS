@@ -1,9 +1,9 @@
-from ids import Ids
+from ids import IntrusionDetectionSystem
 
 
 class Main:
     def __init__(self):
-        self.ids: Ids = Ids()
+        self.IntrusionDetectionSystem: IntrusionDetectionSystem = IntrusionDetectionSystem(20, 10)
 
     def start(self) -> None:
         pass
