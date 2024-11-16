@@ -9,7 +9,7 @@ class PacketAnalyzer:
         self.logger = logger
         self.scan_threshold = scan_threshold
         self.time_window = time_window
-        self.traffic_logs = []  # Now within PacketAnalyzer class
+        self.traffic_logs = []
 
     def analyze_packet(self, packet: scapy.packet.Packet) -> None:
         if packet.haslayer(scapy.IP):
