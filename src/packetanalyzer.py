@@ -29,10 +29,7 @@ class PacketAnalyzer:
         log['timestamps'].append(current_time)
         log['ports'].add(dest_port)
         # Remove old timestamps that are outside the time window
-        log['timestamps'] = [
-            timestamp for timestamp in log['timestamps']
-            if current_time - timestamp <= self.time_window
-        ]
+        log['timestamps'] = [timestamp for timestamp in log['timestamps'] if current_time - timestamp <= self.time_window]
 
     def analyze_packet(self, packet: scapy.packet.Packet) -> None:
         if packet.haslayer(scapy.IP):
