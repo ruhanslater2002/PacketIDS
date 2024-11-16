@@ -3,10 +3,12 @@ from ids import IntrusionDetectionSystem
 
 
 class Main:
-    def __init__(self, scan_threshold: int, time_window: int):
+    def __init__(self, scan_threshold: int, time_window: int, interface: str):
         self.IntrusionDetectionSystem: IntrusionDetectionSystem = IntrusionDetectionSystem(scan_threshold, time_window)
+        self.interface = interface  # Store the interface in the instance
 
     def start(self) -> None:
+        print(f"Using interface: {self.interface}")
         self.IntrusionDetectionSystem.scan()
 
 
@@ -28,7 +30,10 @@ def parse_arguments():
                         help="Threshold for port scan detection (default: 20)")
     parser.add_argument('-tw', '--time-window', type=int, default=10,
                         help="Time window in seconds for scan detection (default: 10)")
+    parser.add_argument('-if', '--interface', type=str, default="eth0",  # Default interface is "eth0"
+                        help="Network interface to use (default: eth0)")
     args: argparse.Namespace = parser.parse_args()
+
     # Validate that the arguments are positive integers
     if args.scan_threshold <= 0:
         parser.error("Scan threshold must be a positive integer.")
@@ -41,4 +46,4 @@ if __name__ == '__main__':
     print(logo())  # Print the logo by calling the logo function
     args = parse_arguments()
     # Initialize the Main class with the parsed arguments
-    Main(args.scan_threshold, args.time_window).start()
+    Main(args.scan_threshold, args.time_window, args.interface).start()
