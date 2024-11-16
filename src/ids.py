@@ -67,5 +67,7 @@ class IntrusionDetectionSystem:
             self.logger.warning(f"Port scan detected from IP: {colored(source_ip, 'red')} scanning ports: {ip_log['ports']}.")
 
     def detect_syn_scan(self, flags: int, source_ip: str, dest_port: int) -> None:
+        # Detect SYN flag in TCP packets, typically used in scans
         if flags & 0x02:  # SYN flag
-            self.logger.warning(f"SYN packet detected from {colored(source_ip, 'red')} to port {colored(dest_port, 'red')}.")
+            self.logger.warning(
+                f"SYN packet detected from {colored(source_ip, 'red')} to port {colored(dest_port, 'red')}.")
