@@ -11,21 +11,20 @@ class PacketAnalyzer:
         self.time_window: float = time_window
         self.traffic_logs: dict = {}
 
-    def get_or_create_log(self, source_ip: str, current_time: float) -> dict:
+    def check_log(self, source_ip: str, current_time: float) -> None:
         # Retrieve existing traffic log or create a new one
         if source_ip not in self.traffic_logs:
             self.traffic_logs[source_ip] = {'timestamp': current_time, 'ports': set()}  # Creates a log with the current time stamp
-        return self.traffic_logs[source_ip]
 
-    def update_log(self, log: dict, current_time: float, dest_port: int, source_ip: str) -> None:
+    def update_log(self, current_time: float, dest_port: int, source_ip: str) -> None:
         # Remove old timestamps that are outside the time window
-        if current_time - log['timestamp'] > self.time_window:
+        if current_time - self.traffic_logs[source_ip]['timestamp'] > self.time_window:
             self.logger.info(f"Log for {colored(source_ip, "yellow")} has been cleared, out of time window {colored(int(self.time_window), "yellow")}.")
             self.traffic_logs.pop(source_ip, None)
             return
         # Update timestamps and ports in the traffic log
-        log['timestamp'] = current_time
-        log['ports'].add(dest_port)
+        self.traffic_logs[source_ip]['timestamp'] = current_time
+        self.traffic_logs[source_ip]['ports'].add(dest_port)
 
     def analyze_packet(self, packet: scapy.packet.Packet) -> None:
         try:
@@ -45,9 +44,9 @@ class PacketAnalyzer:
                 dst_port: int = packet[scapy.TCP].dport
                 current_time: float = time.time()
                 # Get or create traffic log for the source IP
-                traffic_log: dict = self.get_or_create_log(source_ip, current_time)
-                self.update_log(traffic_log, current_time, dst_port, source_ip)
-                self.detect_port_scan(traffic_log, source_ip, dst_port)
+                self.check_log(source_ip, current_time)
+                self.update_log(current_time, dst_port, source_ip)
+                self.detect_port_scan(source_ip, dst_port)
         except Exception as e:
             self.logger.error(f"Error handling TCP packet: {e}.")
 
@@ -59,9 +58,9 @@ class PacketAnalyzer:
         except Exception as e:
             self.logger.error(f"Error handling ICMP packet: {e}.")
 
-    def detect_port_scan(self, traffic_log: dict, source_ip: str, latest_scn_port: int) -> None:
+    def detect_port_scan(self, source_ip: str, latest_scn_port: int) -> None:
         # If the number of unique ports exceeds the scan threshold, log a warning
-        if len(traffic_log['ports']) > self.scan_threshold:
+        if len(self.traffic_logs[source_ip]['ports']) > self.scan_threshold:
             self.logger.warning(f"Potential port scan detected from IP: {colored(source_ip, 'red')}, dst port: {colored(latest_scn_port, "red")}.")
 
     def detect_icmp_scan(self, source_ip: str) -> None:
