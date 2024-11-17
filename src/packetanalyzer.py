@@ -39,7 +39,8 @@ class PacketAnalyzer:
                 self.handle_icmp_packet(packet)
 
     def handle_tcp_packet(self, packet: scapy.packet.Packet) -> None:
-        if packet[scapy.TCP].flags == "S":  # Handles only type requested flags
+        flag: scapy.packet.Packet = packet[scapy.TCP].flags
+        if flag == "S":  # Handles only type requested flags
             source_ip: str = packet[scapy.IP].src
             dst_port: int = packet[scapy.TCP].dport
             current_time: float = time.time()
