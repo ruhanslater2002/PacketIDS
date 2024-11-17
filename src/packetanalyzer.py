@@ -23,7 +23,6 @@ class PacketAnalyzer:
                 self.logger.info(
                     f"Log for {colored(source_ip, 'yellow')} port access list has been cleared, out of time window {colored(int(self.time_window), 'yellow')}."
                 )
-                self.create_log_packet(source_ip, current_time)
         self.traffic_logs[source_ip]['timestamp'] = current_time  # Resets the timer on incoming IP packet
         self.traffic_logs[source_ip]['ports'].add(dest_port)  # Adds new port that is being accessed to IP packet
 
