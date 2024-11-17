@@ -59,10 +59,7 @@ class PacketAnalyzer:
     def detect_port_scan(self, traffic_log: dict, source_ip: str, latest_scn_port: int) -> None:
         # If the number of unique ports exceeds the scan threshold, log a warning
         if len(traffic_log['ports']) > self.scan_threshold:
-            scanned_ports = ", ".join(map(str, traffic_log['ports']))
-            self.logger.warning(
-                f"Potential port scan detected from IP: {colored(source_ip, 'red')} "
-                f"scanning ports: {scanned_ports} (latest: {latest_scn_port}).")
+            self.logger.warning(f"Potential port scan detected from IP: {colored(source_ip, 'red')} to {colored(latest_scn_port, "red")} ")
 
     def detect_icmp_scan(self, source_ip: str) -> None:
         # Simple ICMP scan detection (can be extended for frequency analysis)
