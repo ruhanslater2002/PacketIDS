@@ -20,11 +20,9 @@ class PacketAnalyzer:
             return  # Exit early if no log for source_ip exists.
         # Remove old timestamps if outside the time window
         if current_time - self.traffic_logs[source_ip]['timestamp'] > self.time_window:
-            self.logger.info(
-                f"Log for {colored(source_ip, 'yellow')} has been cleared, out of time window {colored(int(self.time_window), 'yellow')}.")
+            self.logger.info(f"Log for {colored(source_ip, 'yellow')} has been cleared, out of time window {colored(int(self.time_window), 'yellow')}.")
             self.traffic_logs.pop(source_ip, None)
             return
-        # Update log with current time and destination port
         self.traffic_logs[source_ip]['timestamp'] = current_time
         self.traffic_logs[source_ip]['ports'].add(dest_port)
 
