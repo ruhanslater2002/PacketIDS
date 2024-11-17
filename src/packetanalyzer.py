@@ -32,7 +32,9 @@ class PacketAnalyzer:
     def timeout_log_packet(self, source_ip: str):
         time.sleep(self.packet_log_lifetime)
         self.traffic_logs.pop(source_ip, None)
-        self.logger.info(f"IP: {source_ip} has been removed from packet logging, packet lifetime: {self.packet_log_lifetime}.")
+        self.logger.info(
+            f"IP: {colored(source_ip, "yellow")} has been removed from packet logging, packet lifetime: {colored(self.packet_log_lifetime, "yellow")}."
+        )
 
     def analyze_packet(self, packet: scapy.packet.Packet) -> None:
         try:
