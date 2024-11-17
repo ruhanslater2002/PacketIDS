@@ -28,17 +28,17 @@ class PacketAnalyzer:
         self.traffic_logs[source_ip]['ports'].add(dest_port)  # Adds new port that is being accessed to IP packet
 
     def create_log_packet(self, source_ip: str, current_time: float):
-        if source_ip in self.traffic_logs:
-            thread: threading = threading.Thread(target=self.timeout_log_packet, args=(source_ip,))
-            self.traffic_logs[source_ip] = {'timestamp': current_time, 'ports': set()}  # Creates a log with the current timestamp
-            thread.start()  # Starts thread if packet is created
+        thread: threading = threading.Thread(target=self.timeout_log_packet, args=(source_ip,))
+        self.traffic_logs[source_ip] = {'timestamp': current_time, 'ports': set()}  # Creates a log with the current timestamp
+        thread.start()  # Starts thread if packet is created
 
     def timeout_log_packet(self, source_ip: str):
-        time.sleep(self.packet_log_lifetime)
-        self.traffic_logs.pop(source_ip, None)
-        self.logger.info(
-            f"IP: {colored(source_ip, "yellow")} has been removed from packet logging, packet logging lifetime: {colored(self.packet_log_lifetime, "yellow")}."
-        )
+        if source_ip in self.traffic_logs:
+            time.sleep(self.packet_log_lifetime)
+            self.traffic_logs.pop(source_ip, None)
+            self.logger.info(
+                f"IP: {colored(source_ip, "yellow")} has been removed from packet logging, packet logging lifetime: {colored(self.packet_log_lifetime, "yellow")}."
+            )
 
     def analyze_packet(self, packet: scapy.packet.Packet) -> None:
         try:
