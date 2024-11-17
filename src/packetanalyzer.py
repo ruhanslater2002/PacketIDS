@@ -11,13 +11,12 @@ class PacketAnalyzer:
         self.time_window: float = time_window
         self.traffic_logs: dict = {}
 
-    def check_log(self, source_ip: str, current_time: float) -> None:
+    def check_log(self, source_ip: str, current_time: float, dest_port: int) -> None:
         if source_ip not in self.traffic_logs:
             self.traffic_logs[source_ip] = {'timestamp': current_time, 'ports': set()}  # Creates a log with the current timestamp
+        self.update_log(current_time, dest_port, source_ip)
 
     def update_log(self, current_time: float, dest_port: int, source_ip: str) -> None:
-        if source_ip not in self.traffic_logs:
-            return  # Exit early if no log for source_ip exists.
         # Remove old timestamps if outside the time window
         if current_time - self.traffic_logs[source_ip]['timestamp'] > self.time_window:
             self.logger.info(f"Log for {colored(source_ip, 'yellow')} has been cleared, out of time window {colored(int(self.time_window), 'yellow')}.")
@@ -43,8 +42,7 @@ class PacketAnalyzer:
                 source_ip: str = packet[scapy.IP].src
                 dst_port: int = packet[scapy.TCP].dport
                 current_time: float = time.time()
-                self.check_log(source_ip, current_time)
-                self.update_log(current_time, dst_port, source_ip)
+                self.check_log(source_ip, current_time, dst_port)
                 self.detect_port_scan(source_ip, dst_port)
         except Exception as e:
             self.logger.error(f"Error handling TCP packet: {str(e)}")
