@@ -5,24 +5,25 @@ from termcolor import colored
 
 
 class PacketAnalyzer:
-    def __init__(self, logger: ConsoleLogger, scan_threshold: int, time_window: int):
+    def __init__(self, logger: ConsoleLogger, scan_threshold: int, time_window: float):
         self.logger: ConsoleLogger = logger
         self.scan_threshold: int = scan_threshold
-        self.time_window: int = time_window
+        self.time_window: float = time_window
         self.traffic_logs: dict = {}
 
     def get_or_create_log(self, source_ip: str) -> dict:
         # Retrieve existing traffic log or create a new one
         if source_ip not in self.traffic_logs:
-            self.traffic_logs[source_ip] = {'timestamps': [], 'ports': set()}
+            self.traffic_logs[source_ip] = {'timestamp': '', 'ports': set()}
         return self.traffic_logs[source_ip]
 
     def update_log(self, log: dict, current_time: float, dest_port: int) -> None:
-        # Update timestamps and ports in the traffic log
-        log['timestamps'].append(current_time)
-        log['ports'].add(dest_port)
         # Remove old timestamps that are outside the time window
-        log['timestamps'] = [timestamp for timestamp in log['timestamps'] if current_time - timestamp <= self.time_window]
+        if current_time - log['timestamp'] > self.time_window:
+            log['ports'].clear()  # Reset the port set if the log is outdated
+        # Update timestamps and ports in the traffic log
+        log['timestamp'] = current_time
+        log['ports'].add(dest_port)
 
     def analyze_packet(self, packet: scapy.packet.Packet) -> None:
         try:
