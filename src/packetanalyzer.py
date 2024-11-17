@@ -18,9 +18,12 @@ class PacketAnalyzer:
             self.create_log_packet(source_ip, current_time)
         # Remove old timestamps if outside the time window
         if current_time - self.traffic_logs[source_ip]['timestamp'] > self.time_window:
-            self.logger.info(f"Log for {colored(source_ip, 'yellow')} has been cleared, out of time window {colored(int(self.time_window), 'yellow')}.")
-            self.traffic_logs.pop(source_ip, None)  # Removes source ip from dict
-            self.create_log_packet(source_ip, current_time)
+            if source_ip in self.traffic_logs:
+                self.traffic_logs.pop(source_ip, None)  # Removes source ip from dict
+                self.logger.info(
+                    f"Log for {colored(source_ip, 'yellow')} has been cleared, out of time window {colored(int(self.time_window), 'yellow')}."
+                )
+                self.create_log_packet(source_ip, current_time)
         self.traffic_logs[source_ip]['timestamp'] = current_time  # Resets the timer on incoming IP packet
         self.traffic_logs[source_ip]['ports'].add(dest_port)  # Adds new port that is being accessed to IP packet
 
