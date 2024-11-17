@@ -17,10 +17,9 @@ class PacketAnalyzer:
         # Remove old timestamps if outside the time window
         if current_time - self.traffic_logs[source_ip]['timestamp'] > self.time_window:
             self.logger.info(f"Log for {colored(source_ip, 'yellow')} has been cleared, out of time window {colored(int(self.time_window), 'yellow')}.")
-            # self.traffic_logs.pop(source_ip, None)
-            self.traffic_logs[source_ip]['ports'].clear()
-        self.traffic_logs[source_ip]['timestamp'] = current_time
-        self.traffic_logs[source_ip]['ports'].add(dest_port)
+            self.traffic_logs[source_ip]['ports'].clear()  # Clears ports from incoming IP packet
+        self.traffic_logs[source_ip]['timestamp'] = current_time  # Resets the timer on incoming IP packet
+        self.traffic_logs[source_ip]['ports'].add(dest_port)  # Adds new port that is being accessed to IP packet
 
     def analyze_packet(self, packet: scapy.packet.Packet) -> None:
         try:
