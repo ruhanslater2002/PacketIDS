@@ -30,6 +30,7 @@ class PacketAnalyzer:
     def create_log_packet(self, source_ip: str, current_time: float):
         thread: threading = threading.Thread(target=self.timeout_log_packet, args=(source_ip,))
         self.traffic_logs[source_ip] = {'timestamp': current_time, 'ports': set()}  # Creates a log with the current timestamp
+        thread.daemon = True  # Ensure thread ends with the program
         thread.start()  # Starts thread if packet is created
 
     def timeout_log_packet(self, source_ip: str):
