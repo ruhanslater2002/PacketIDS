@@ -7,3 +7,12 @@ Identifies and logs suspicious network activity, such as:
 
     Port Scans (detects multiple ports being accessed by the same source IP).
     ICMP Scans (detects excessive ping requests).
+
+Installation:
+
+pip install -r requirements.txt
+
+Usage:
+
+python main.py -st <scan_threshold> -tw <time_window> -if <interface>
+Example: python main.py -st 30 -tw 15 -if "Ethernet"
