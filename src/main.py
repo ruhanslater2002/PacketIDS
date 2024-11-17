@@ -42,7 +42,7 @@ def parse_arguments():
     parser.add_argument('-tw', '--time-window', type=int, default=10,
                         help="Time window in seconds for scan detection (default: 10)")
     parser.add_argument('-if', '--interface', type=str, default="Ethernet",
-                        help="Network interface to use (default: Ethernet)")
+                        help="Network interface to use (default: Ethernet), example -if 'VMware Network Adapter VMnet8'")
     args: argparse.Namespace = parser.parse_args()
     # Validate that the arguments are positive integers
     if args.scan_threshold <= 0:
