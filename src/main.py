@@ -41,7 +41,7 @@ def parse_arguments():
                         help="Threshold for port scan detection (default: 20)")
     parser.add_argument('-tw', '--time-window', type=int, default=10,
                         help="Time window in seconds for scan detection (default: 10)")
-    parser.add_argument('-if', '--interface', type=str, default="Ethernet",  # Default interface is "eth0"
+    parser.add_argument('-if', '--interface', type=str, default="Ethernet",
                         help="Network interface to use (default: Ethernet)")
     args: argparse.Namespace = parser.parse_args()
     # Validate that the arguments are positive integers

@@ -53,10 +53,10 @@ class PacketAnalyzer:
             source_ip: str = packet[scapy.IP].src
             self.detect_icmp_scan(source_ip)
 
-    def detect_port_scan(self, traffic_log: dict, source_ip: str, latest_port: int) -> None:
+    def detect_port_scan(self, traffic_log: dict, source_ip: str, latest_scn_port: int) -> None:
         # If the number of unique ports exceeds the scan threshold, it's a port scan
         if len(traffic_log['ports']) > self.scan_threshold:
-            self.logger.warning(f"Potential port scan detected from IP: {colored(source_ip, 'red')} scanning ports: {latest_port}.")
+            self.logger.warning(f"Potential port scan detected from IP: {colored(source_ip, 'red')} scanning ports: {latest_scn_port}.")
 
     def detect_icmp_scan(self, source_ip: str):
         self.logger.warning(f"ICMP scan detected from IP: {colored(source_ip, 'yellow')}.")
