@@ -28,10 +28,10 @@ class PacketAnalyzer:
         self.traffic_logs[source_ip]['ports'].add(dest_port)  # Adds new port that is being accessed to IP packet
 
     def create_log_packet(self, source_ip: str, current_time: float):
-        thread: threading = threading.Thread(target=self.timeout_log_packet, args=(source_ip,))
         if source_ip in self.traffic_logs:
+            thread: threading = threading.Thread(target=self.timeout_log_packet, args=(source_ip,))
             self.traffic_logs[source_ip] = {'timestamp': current_time, 'ports': set()}  # Creates a log with the current timestamp
-        thread.start()  # Starts thread if packet is created
+            thread.start()  # Starts thread if packet is created
 
     def timeout_log_packet(self, source_ip: str):
         time.sleep(self.packet_log_lifetime)
