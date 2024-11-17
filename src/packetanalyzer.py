@@ -21,7 +21,7 @@ class PacketAnalyzer:
             if source_ip in self.traffic_logs:
                 self.traffic_logs[source_ip]['ports'].clear()  # Removes ports scanned in list
                 self.logger.info(
-                    f"Log for {colored(source_ip, 'yellow')} port access list has been cleared, out of time window {colored(int(self.time_window), 'yellow')}."
+                    f"Log for {colored(source_ip, 'yellow')} port access list has been {colored("cleared", "yellow")}, out of time window {colored(int(self.time_window), 'yellow')}."
                 )
         self.traffic_logs[source_ip]['timestamp'] = current_time  # Resets the timer on incoming IP packet
         self.traffic_logs[source_ip]['ports'].add(dest_port)  # Adds new port that is being accessed to IP packet
@@ -37,7 +37,7 @@ class PacketAnalyzer:
             time.sleep(self.packet_log_lifetime)
             self.traffic_logs.pop(source_ip, None)
             self.logger.info(
-                f"IP: {colored(source_ip, "yellow")} has been removed from packet logging, packet logging lifetime: {colored(self.packet_log_lifetime, "yellow")}."
+                f"IP: {colored(source_ip, "yellow")} has been {colored("removed", "yellow")} from packet logging, packet logging lifetime: {colored(self.packet_log_lifetime, "yellow")}."
             )
 
     def analyze_packet(self, packet: scapy.packet.Packet) -> None:
