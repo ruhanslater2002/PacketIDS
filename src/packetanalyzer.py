@@ -9,20 +9,13 @@ class PacketAnalyzer:
         self.logger: ConsoleLogger = logger
         self.scan_threshold: int = scan_threshold
         self.time_window: int = time_window
-        self.traffic_logs: list[dict] = []
+        self.traffic_logs: dict = {}
 
-    def get_log(self, source_ip: str) -> dict:
-        # Check if the log for the IP already exists, else create one
-        for traffic_log in self.traffic_logs:
-            if traffic_log['ip'] == source_ip:
-                return traffic_log
-        return self.create_log(source_ip)
-
-    def create_log(self, source_ip: str) -> dict:
-        # Create a new log entry for the IP
-        traffic_log = {'ip': source_ip, 'timestamps': [], 'ports': set()}
-        self.traffic_logs.append(traffic_log)
-        return traffic_log
+    def get_or_create_log(self, source_ip: str) -> dict:
+        # Retrieve existing traffic log or create a new one
+        if source_ip not in self.traffic_logs:
+            self.traffic_logs[source_ip] = {'timestamps': [], 'ports': set()}
+        return self.traffic_logs[source_ip]
 
     def update_log(self, log: dict, current_time: float, dest_port: int) -> None:
         # Update timestamps and ports in the traffic log
@@ -32,32 +25,45 @@ class PacketAnalyzer:
         log['timestamps'] = [timestamp for timestamp in log['timestamps'] if current_time - timestamp <= self.time_window]
 
     def analyze_packet(self, packet: scapy.packet.Packet) -> None:
-        if packet.haslayer(scapy.IP):
-            if packet.haslayer(scapy.TCP):
-                self.handle_tcp_packet(packet)
-            elif packet.haslayer(scapy.ICMP):
-                self.handle_icmp_packet(packet)
+        try:
+            if packet.haslayer(scapy.IP):
+                if packet.haslayer(scapy.TCP):
+                    self.handle_tcp_packet(packet)
+                elif packet.haslayer(scapy.ICMP):
+                    self.handle_icmp_packet(packet)
+        except Exception as e:
+            self.logger.error(f"Error analyzing packet: {e}")
 
     def handle_tcp_packet(self, packet: scapy.packet.Packet) -> None:
-        flag: scapy.packet.Packet = packet[scapy.TCP].flags
-        if flag == "S":  # Handles only type requested flags
-            source_ip: str = packet[scapy.IP].src
-            dst_port: int = packet[scapy.TCP].dport
-            current_time: float = time.time()
-            # Get or create traffic log for the source IP
-            traffic_log = self.get_log(source_ip)
-            self.update_log(traffic_log, current_time, dst_port)
-            self.detect_port_scan(traffic_log, source_ip, dst_port)
+        try:
+            flag: scapy.packet.Packet = packet[scapy.TCP].flags
+            if flag == "S":  # SYN flag for port scanning
+                source_ip: str = packet[scapy.IP].src
+                dst_port: int = packet[scapy.TCP].dport
+                current_time: float = time.time()
+                # Get or create traffic log for the source IP
+                traffic_log: dict = self.get_or_create_log(source_ip)
+                self.update_log(traffic_log, current_time, dst_port)
+                self.detect_port_scan(traffic_log, source_ip, dst_port)
+        except Exception as e:
+            self.logger.error(f"Error handling TCP packet: {e}")
 
     def handle_icmp_packet(self, packet: scapy.packet.Packet) -> None:
-        if packet[scapy.ICMP].type == 8:  # Handles only type 8 request code
-            source_ip: str = packet[scapy.IP].src
-            self.detect_icmp_scan(source_ip)
+        try:
+            if packet[scapy.ICMP].type == 8:  # ICMP Echo Request (ping)
+                source_ip: str = packet[scapy.IP].src
+                self.detect_icmp_scan(source_ip)
+        except Exception as e:
+            self.logger.error(f"Error handling ICMP packet: {e}")
 
     def detect_port_scan(self, traffic_log: dict, source_ip: str, latest_scn_port: int) -> None:
-        # If the number of unique ports exceeds the scan threshold, it's a port scan
+        # If the number of unique ports exceeds the scan threshold, log a warning
         if len(traffic_log['ports']) > self.scan_threshold:
-            self.logger.warning(f"Potential port scan detected from IP: {colored(source_ip, 'red')} scanning ports: {latest_scn_port}.")
+            scanned_ports = ", ".join(map(str, traffic_log['ports']))
+            self.logger.warning(
+                f"Potential port scan detected from IP: {colored(source_ip, 'red')} "
+                f"scanning ports: {scanned_ports} (latest: {latest_scn_port}).")
 
-    def detect_icmp_scan(self, source_ip: str):
+    def detect_icmp_scan(self, source_ip: str) -> None:
+        # Simple ICMP scan detection (can be extended for frequency analysis)
         self.logger.warning(f"ICMP scan detected from IP: {colored(source_ip, 'yellow')}.")
