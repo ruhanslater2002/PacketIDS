@@ -14,20 +14,22 @@ class PacketAnalyzer:
         self.traffic_logs: dict = {}
 
     def log_packet(self, source_ip: str, current_time: float, dest_port: int) -> None:
-        thread: threading = threading.Thread(target=self.packet_log_timeout, args=(source_ip,))
         if source_ip not in self.traffic_logs:
-            self.traffic_logs[source_ip] = {'timestamp': current_time, 'ports': set()}  # Creates a log with the current timestamp
-            thread.start()  # Starts thread if packet is created
+            self.create_log_packet(source_ip, current_time)
         # Remove old timestamps if outside the time window
         if current_time - self.traffic_logs[source_ip]['timestamp'] > self.time_window:
             self.logger.info(f"Log for {colored(source_ip, 'yellow')} has been cleared, out of time window {colored(int(self.time_window), 'yellow')}.")
             self.traffic_logs.pop(source_ip, None)  # Removes source ip from dict
-            self.traffic_logs[source_ip] = {'timestamp': current_time, 'ports': set()}  # Creates new traffic log after removed in time window
-            thread.start()  # Starts thread if packet is created
+            self.create_log_packet(source_ip, current_time)
         self.traffic_logs[source_ip]['timestamp'] = current_time  # Resets the timer on incoming IP packet
         self.traffic_logs[source_ip]['ports'].add(dest_port)  # Adds new port that is being accessed to IP packet
 
-    def packet_log_timeout(self, source_ip: str):
+    def create_log_packet(self, source_ip: str, current_time: float):
+        thread: threading = threading.Thread(target=self.timeout_log_packet, args=(source_ip,))
+        self.traffic_logs[source_ip] = {'timestamp': current_time, 'ports': set()}  # Creates a log with the current timestamp
+        thread.start()  # Starts thread if packet is created
+
+    def timeout_log_packet(self, source_ip: str):
         time.sleep(self.packet_log_lifetime)
         self.traffic_logs.pop(source_ip, None)
         self.logger.info(f"IP: {source_ip} has been removed from packet logging, packet lifetime: {self.packet_log_lifetime}.")
