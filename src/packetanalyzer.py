@@ -14,13 +14,14 @@ class PacketAnalyzer:
     def get_or_create_log(self, source_ip: str) -> dict:
         # Retrieve existing traffic log or create a new one
         if source_ip not in self.traffic_logs:
-            self.traffic_logs[source_ip] = {'timestamp': '', 'ports': set()}
+            self.traffic_logs[source_ip] = {'timestamp': 0, 'ports': set()}
         return self.traffic_logs[source_ip]
 
-    def update_log(self, log: dict, current_time: float, dest_port: int) -> None:
+    def update_log(self, log: dict, current_time: float, dest_port: int, source_ip: str) -> None:
         # Remove old timestamps that are outside the time window
         if current_time - log['timestamp'] > self.time_window:
-            log['ports'].clear()  # Reset the port set if the log is outdated
+            self.traffic_logs.pop(source_ip, None)
+            return
         # Update timestamps and ports in the traffic log
         log['timestamp'] = current_time
         log['ports'].add(dest_port)
@@ -44,7 +45,7 @@ class PacketAnalyzer:
                 current_time: float = time.time()
                 # Get or create traffic log for the source IP
                 traffic_log: dict = self.get_or_create_log(source_ip)
-                self.update_log(traffic_log, current_time, dst_port)
+                self.update_log(traffic_log, current_time, dst_port, source_ip)
                 self.detect_port_scan(traffic_log, source_ip, dst_port)
         except Exception as e:
             self.logger.error(f"Error handling TCP packet: {e}")
