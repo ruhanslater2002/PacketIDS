@@ -12,7 +12,7 @@ class Main:
         except Exception as e:
             print(f"Error initializing Intrusion Detection System: {e}")
             sys.exit(1)  # Exit the program with error status
-        self.interface = interface  # Store the interface in the instance
+        self.interface: str = interface  # Store the interface in the instance
 
     def start(self) -> None:
         print(f"Using interface: {self.interface}")

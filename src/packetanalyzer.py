@@ -6,10 +6,10 @@ from termcolor import colored
 
 class PacketAnalyzer:
     def __init__(self, logger: ConsoleLogger, scan_threshold: int, time_window: int):
-        self.logger = logger
-        self.scan_threshold = scan_threshold
-        self.time_window = time_window
-        self.traffic_logs = []
+        self.logger: ConsoleLogger = logger
+        self.scan_threshold: int = scan_threshold
+        self.time_window: int = time_window
+        self.traffic_logs: list[dict] = []
 
     def get_log(self, source_ip: str) -> dict:
         # Check if the log for the IP already exists, else create one

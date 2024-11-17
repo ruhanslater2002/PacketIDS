@@ -7,9 +7,9 @@ class IntrusionDetectionSystem:
     def __init__(self, scan_threshold: int, time_window: int, interface: str):
         # Initialize Scapy and logger
         scapy.conf.verb = 0  # Suppress verbose Scapy output
-        self.interface = interface
-        self.logger = ConsoleLogger("IDS")  # Logger instance for IDS
-        self.packet_analyzer = PacketAnalyzer(self.logger, scan_threshold, time_window)
+        self.interface: str = interface
+        self.logger: ConsoleLogger = ConsoleLogger("IDS")  # Logger instance for IDS
+        self.packet_analyzer: PacketAnalyzer = PacketAnalyzer(self.logger, scan_threshold, time_window)
 
     def scan(self):
         # Start packet sniffing
