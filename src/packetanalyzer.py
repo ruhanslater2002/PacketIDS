@@ -78,5 +78,5 @@ class PacketAnalyzer:
             )
 
     def detect_icmp_scan(self, source_ip: str) -> None:
-        # Simple ICMP scan detection (can be extended for frequency analysis)
+        # Check for ICMP scans
         self.logger.warning(f"ICMP scan from IP: {colored(source_ip, 'yellow')}.")
