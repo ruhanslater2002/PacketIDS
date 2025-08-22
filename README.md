@@ -19,3 +19,5 @@ Usage:
 Example:
 
     python main.py -st 30 -tw 15 -if "Ethernet"
+
+<img width="1048" height="231" alt="{AE738BEF-411B-403B-A8BD-8EDD650684BB}" src="https://github.com/user-attachments/assets/3377efce-22d8-4929-b3e9-046b443d548c" />
